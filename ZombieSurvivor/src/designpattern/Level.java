@@ -20,12 +20,10 @@ public class Level{
     double miny=2;
     double maxx=748;
     double maxy=558;
-    Flame s;
-    int controllerShoot;
     Music music=new Music();
     int state=0;
     public int points=0;
-    static double gravity=2;
+    Gun arma=new Gun();
 //
     public void showPoints(Window window){
         Font f=new Font("arial",Font.BOLD,18);
@@ -37,13 +35,11 @@ public class Level{
     public Level(Window window){
         this.window=window;
         keyboard=window.getKeyboard();
-//        background=new GameImage("src/image/background.png");
         scene.loadFromFile(URL.scenario("scene.scn"));
         generateActors();
         music.play("strongermonsters.wav");
         while(state==0){
             scene.draw();
-//            background.draw(); 
                 player.draw();
                 for(int i=0; i<monsterbig.length; i++){
                     monsterbig[i].draw();
@@ -65,16 +61,14 @@ public class Level{
             
         }
         while(state==1){
-//            scene.draw();
-//            window.update();
             run();
         }
     }
     
     public void run(){
         while(true){
-            showPoints(window);
             update();
+            showPoints(window);
             keyboardAction();
         }
     }
@@ -132,6 +126,7 @@ public class Level{
         showPoints(window);
         window.update();
         arma.run();
+
         if(points==(monsterbig.length*3)+(monstermedium.length*2)+(monstermini.length*1))
             endGame(true);
     }
@@ -198,42 +193,10 @@ public class Level{
         }   
     }
     
-    Gun arma=new Gun();
-    
     public void atirar(int caminho){
         arma.newFlame((int)player.x,(int)player.y,caminho,scene);
     }
-    
-    public int newX(){
-        int random_side =(int)(Math.random()*10);    
-        int random =(int)(Math.random()*10);
-        
-        double resultado;
-        //left
-        if(random_side<=5){
-            resultado=((random)*(maxx/2)/3);
-        //right
-        }else{
-            resultado=((random)*(maxx/2)/3);
-        }
-        return (int)resultado/2;
-    }
-    
-    public int newY(){
-        int random_side =(int)(Math.random()*10);    
-        int random =(int)(Math.random()*10);
-        
-        double resultado;
-        //left
-        if(random_side<=5){
-            resultado=((random)*(maxy/2)/3);
-        //right
-        }else{
-            resultado=((random)*(maxy/2)/3);
-        }
-        return (int)resultado/2;
-    }
-                     
+                  
     public void keyboardAction(){
        
     if(keyboard.keyDown(KeyEvent.VK_S))

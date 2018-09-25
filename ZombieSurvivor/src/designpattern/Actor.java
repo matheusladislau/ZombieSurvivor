@@ -1,27 +1,25 @@
 package designpattern;
-import jplay.Sound;
 import jplay.Sprite;
-import jplay.URL;
-public abstract  class Actor extends Sprite{
+public abstract class Actor extends Sprite implements ActorInterface{
     double velocity=1;
     boolean alive=true;
     double life;
     double strenght;
-    int pointsperdeath;
-
+    double pointsperdeath;
+    
     public Actor(int x,int y,String image) {
         super((image),1);
         this.x=x;
         this.y=y;
     }
-    
+
     public void death(){
-        this.alive=false;
         this.x=-6666;
         this.y=-6666;
-        new Sound(URL.audio("zombie_death.wav")).play();
+        this.alive=false;
     }
     
+    @Override
     public void receiveDamage(double damage){
         this.life-=damage;
     }
