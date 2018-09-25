@@ -7,8 +7,6 @@ public class Gun {
     ArrayList<Flame> shoots = new ArrayList();
     boolean movendo;
     
-    
-    
     public void newFlame(int x,int y,int caminho,Scene scene){
         Flame f=new Flame(x,y,"src/image/flame.png",caminho);
         shoots.add(f);

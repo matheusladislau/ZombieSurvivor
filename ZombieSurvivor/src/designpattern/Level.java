@@ -3,20 +3,18 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.KeyEvent;
 import javax.swing.JOptionPane;
-import jplay.GameImage;
 import jplay.Keyboard;
 import jplay.Scene;
-import jplay.Sound;
 import jplay.URL;
 import jplay.Window;
 public class Level{
     private final Window window;
     private final Keyboard keyboard;
 //    private final GameImage background;
-    private Player player;
-    private MonsterBig[] monsterbig;
-    private MonsterMini[] monstermini;
-    private MonsterMedium[] monstermedium;
+    private Actor player;
+    private Actor[] monsterbig;
+    private Actor[] monstermini;
+    private Actor[] monstermedium;
     private Scene scene=new Scene();
     double minx=2;
     double miny=2;
@@ -58,8 +56,8 @@ public class Level{
                 }
                 window.update();
             
-            JOptionPane.showMessageDialog(null,"Apocalipse Survivor do Sucesso"
-                    + "\nAperte os direcionais para andar"
+            JOptionPane.showMessageDialog(null,"Zombie Survivor do Sucesso"
+                    + "\n\nAperte os direcionais para andar"
                     + "\nA,S,D,espaço para atirar"
                     + "\nDerrote os zumbis para vencer"
                     + "\nSe chegar a zero de vida você perde.\n\nBoa sorte!");
@@ -72,6 +70,7 @@ public class Level{
             run();
         }
     }
+    
     public void run(){
         while(true){
             showPoints(window);
@@ -79,15 +78,15 @@ public class Level{
             keyboardAction();
         }
     }
+    
     public void update(){
         if(!player.alive)
-            gameOver();
+            endGame(false);
         
-//        background.draw();
         scene.draw();
         player.draw();
         
-        for (MonsterBig mbig : monsterbig) {
+        for (Actor mbig : monsterbig) {
             if (mbig.alive) {
                 if (mbig.life >=0) {
                     mbig.follow(player.x, player.y);
@@ -101,7 +100,7 @@ public class Level{
                 }
             }
         }
-        for (MonsterMedium mmediunm : monstermedium) {
+        for (Actor mmediunm : monstermedium) {
             if (mmediunm.alive) {
                 if (mmediunm.life >=0) {
                     mmediunm.follow(player.x, player.y);
@@ -115,7 +114,7 @@ public class Level{
                 }
             }
         }
-        for(MonsterMini mmini : monstermini) {
+        for(Actor mmini : monstermini) {
             if (mmini.alive) {
                 if (mmini.life >=0) {
                     mmini.follow(player.x, player.y);
@@ -134,21 +133,12 @@ public class Level{
         window.update();
         arma.run();
         if(points==(monsterbig.length*3)+(monstermedium.length*2)+(monstermini.length*1))
-            winGame();
+            endGame(true);
     }
-    
-    public void winGame(){
-        music.stop();
-        music.play("last.wav","umavez");  
-        JOptionPane.showMessageDialog(null,"You win!\n"
-            + "Score: "+points+"\nLife: "+String.format("%.1f",player.life));
-        music.stop();
-        running=false;
-        System.exit(0);
-    }
+
     public void verifyDamage(){
         int proximity=37;
-        for (MonsterBig mbig : monsterbig) {
+        for (Actor mbig : monsterbig) {
             if ((player.x > mbig.x) && (player.x - mbig.x < proximity)) {
                 if ((player.y > mbig.y) && (player.y - mbig.y < proximity)) {
                     mbig.attack(player);
@@ -161,7 +151,7 @@ public class Level{
             }
         }
 
-        for (MonsterMedium mmedium : monstermedium) {
+        for (Actor mmedium : monstermedium) {
             if ((player.x > mmedium.x) && (player.x - mmedium.x < proximity)) {
                 if ((player.y > mmedium.y) && (player.y - mmedium.y < proximity)) {
                     mmedium.attack(player);
@@ -173,8 +163,7 @@ public class Level{
                 }
             }
         }
-        
-        for (MonsterMini mmini : monstermini) {
+        for (Actor mmini : monstermini) {
             if ((player.x > mmini.x) && (player.x - mmini.x < proximity)) {
                 if ((player.y > mmini.y) && (player.y - mmini.y < proximity)) {
                     mmini.attack(player);
@@ -187,7 +176,7 @@ public class Level{
             }
         }
         if(player.life<=0){
-            gameOver();
+            player.death();
         }
     }
       
@@ -196,17 +185,16 @@ public class Level{
         monstermedium=new MonsterMedium[5];
         monstermini=new MonsterMini[11];
         
-        player=new Player(370,300,"src/image/red.jpg");     
+        player=new ActorFactory().getActor("player");     
 
         for(int i=0; i<monsterbig.length; i++) {
-            monsterbig[i]=new MonsterBig(newX(),newY(),"src/image/gengar_1.png");
-            
+            monsterbig[i]=new ActorFactory().getActor("monsterbig");                     
         }
         for(int i=0; i<monstermedium.length; i++) {
-            monstermedium[i]=new MonsterMedium(newX(),newY(),"src/image/zombie.png");    
+            monstermedium[i]=new ActorFactory().getActor("monstermedium");
         }
         for(int i=0; i<monstermini.length; i++) {
-            monstermini[i]=new MonsterMini(newX(),newY(),"src/image/mini.png");
+            monstermini[i]=new ActorFactory().getActor("monstermini");
         }   
     }
     
@@ -282,18 +270,22 @@ public class Level{
     update();
     }
    
-    static boolean running=true;
-    public void gameOver(){
+    public void endGame(boolean win){
+        if(win){
+            music.stop();
+            music.play("last.wav","umavez");  
+            JOptionPane.showMessageDialog(null,"You win!\n"
+                + "Score: "+points+"\nLife: "+String.format("%.1f",player.life));
+        }else{
+            music.stop();
+            music.play("zombie.wav","umavez");   
+            music.play("zombie.wav","umavez");  
+            music.play("zombie.wav","umavez");  
+            JOptionPane.showMessageDialog(null,"Game Over!\n"
+                + "Score: "+points);
+        }
         music.stop();
-    if(running){
-        music.play("zombie.wav","umavez");   
-        music.play("zombie.wav","umavez");  
-        music.play("zombie.wav","umavez");  
-        JOptionPane.showMessageDialog(null,"Game Over!\n"
-            + "Score: "+points);
-        music.stop();
-        running=false;
         System.exit(0);
-    }    
-}
+    }
+ 
 }

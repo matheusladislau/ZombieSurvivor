@@ -1,6 +1,5 @@
 package designpattern;
 public class MonsterMini extends Actor{
-    
     public MonsterMini(int x, int y, String image) {
         super(x, y, image);
         this.velocity=0.3;
